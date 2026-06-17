@@ -4,6 +4,7 @@ An accessible, responsive, vanilla HTML/CSS/JS web app that helps students recor
 
 **Theme:** Student Finance Tracker
 **Live Demo:** https://apiel-max.github.io/student-finance-tracker
+**Demo Video:**
 **Developer:** Alier Piel — a.piel@alustudent.com — [github.com/apiel-max](https://github.com/apiel-max)
 
 ---
@@ -105,6 +106,8 @@ fetch('seed.json')
 
 ```
 student-finance-tracker/
+├── assets/
+│   └── spec.md         M1 wireframes, data model, and a11y plan
 ├── scripts/
 │   ├── app.js          Entry point — event wiring
 │   ├── search.js       compileRegex, isValidRegex, highlight
