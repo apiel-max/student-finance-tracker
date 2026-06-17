@@ -4,7 +4,7 @@
 import { state, getFilteredRecords, getStats } from './state.js';
 import { highlight } from './search.js';
 
-const fmt = n => `RWF ${Number(n).toLocaleString('en-RW', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+const fmt = n => `RWF ${Number(n).toLocaleString('en-RW', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function escapeHtml(str) {
   return String(str)
