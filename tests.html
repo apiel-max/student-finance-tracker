@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tests - Student Finance Tracker</title>
+  <style>
+    :root {
+      --bg:#0f1117;--surface:#1a1d27;--surface2:#222639;--border:#2e3250;
+      --accent:#6c63ff;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+      --text:#e2e8f0;--muted:#94a3b8;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;padding:2rem 1rem;}
+    h1{font-size:1.6rem;color:#fff;margin-bottom:.25rem;}
+    .subtitle{color:var(--muted);margin-bottom:2rem;font-size:.9rem;}
+    h2{font-size:1.05rem;color:var(--accent);margin:2rem 0 .75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
+    #summary{display:flex;gap:1.5rem;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:2rem;}
+    .sum-item{display:flex;flex-direction:column;gap:2px;}
+    .sum-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+    .sum-val{font-size:1.4rem;font-weight:700;color:#fff;}
+    #sum-pass{color:var(--green);}#sum-fail{color:var(--red);}#sum-skip{color:var(--yellow);}
+    #progress-wrap{height:8px;background:var(--border);border-radius:4px;margin-bottom:2rem;overflow:hidden;}
+    #progress-bar{height:100%;width:0%;background:var(--green);border-radius:4px;transition:width .4s ease;}
+    .test-row{display:grid;grid-template-columns:1.8rem 1fr auto;gap:.5rem .75rem;align-items:start;padding:.55rem .75rem;border-radius:6px;margin-bottom:.3rem;font-size:.875rem;background:var(--surface2);border:1px solid var(--border);}
+    .test-row.pass{border-color:rgba(34,197,94,.3);}
+    .test-row.fail{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06);}
+    .test-row.skip{border-color:rgba(245,158,11,.3);}
+    .icon{font-size:1rem;line-height:1.4;}
+    .pass .icon::before{content:"PASS";color:var(--green);font-weight:700;font-size:.7rem;}
+    .fail .icon::before{content:"FAIL";color:var(--red);font-weight:700;font-size:.7rem;}
+    .skip .icon::before{content:"SKIP";color:var(--yellow);font-weight:700;font-size:.7rem;}
+    .test-name{color:var(--text);}
+    .test-detail{font-size:.78rem;color:var(--muted);grid-column:2;margin-top:1px;}
+    .fail .test-detail{color:#fca5a5;}
+    .badge{font-size:.7rem;padding:.15em .55em;border-radius:20px;white-space:nowrap;align-self:center;}
+    .badge-pass{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+    .badge-fail{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+    .badge-skip{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3);}
+    #run-btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:.6rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;margin-bottom:1.5rem;}
+    #run-btn:hover{background:#5a52e0;}
+    #output{margin-top:1rem;}
+  </style>
+</head>
+<body>
+<h1>Test Suite - Student Finance Tracker</h1>
+<p class="subtitle">Validates all regex rules, search utilities, and import validation logic. (M3)</p>
+<button id="run-btn">Run All Tests</button>
+<div id="summary" aria-live="polite">
+  <div class="sum-item"><span class="sum-label">Total</span><span class="sum-val" id="sum-total">-</span></div>
+  <div class="sum-item"><span class="sum-label">Passed</span><span class="sum-val" id="sum-pass">-</span></div>
+  <div class="sum-item"><span class="sum-label">Failed</span><span class="sum-val" id="sum-fail">-</span></div>
+  <div class="sum-item"><span class="sum-label">Skipped</span><span class="sum-val" id="sum-skip">-</span></div>
+</div>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div id="output" role="region" aria-label="Test results"></div>
+
+<script>
+/* validators - mirrored from scripts/validators.js */
+var RE_DESCRIPTION  = /^\S(?:.*\S)?$/;
+var RE_DOUBLE_WORD  = /\b(\w+)\s+\1\b/i;
+var RE_AMOUNT       = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
+var RE_DATE         = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+var RE_CATEGORY     = /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/;
+var RE_POSITIVE_INT = /^(?!0+$)\d+(\.\d{1,2})?$/;
+
+function validateDescription(val) {
+  if (!val || !val.trim()) return 'Description is required.';
+  if (!RE_DESCRIPTION.test(val)) return 'No leading or trailing spaces allowed.';
+  if (RE_DOUBLE_WORD.test(val)) return 'Duplicate consecutive word detected.';
+  if (val.length < 2) return 'Description must be at least 2 characters.';
+  if (val.length > 120) return 'Description must be 120 characters or fewer.';
+  return null;
+}
+function validateAmount(val) {
+  if (!val || !val.trim()) return 'Amount is required.';
+  if (!RE_AMOUNT.test(val.trim())) return 'Enter a valid positive number.';
+  if (parseFloat(val) <= 0) return 'Amount must be greater than 0.';
+  return null;
+}
+function validateDate(val) {
+  if (!val) return 'Date is required.';
+  if (!RE_DATE.test(val)) return 'Use format YYYY-MM-DD.';
+  return null;
+}
+function validateCategory(val) {
+  if (!val || val === '') return 'Please select a category.';
+  return null;
+}
+function validateCategoryName(val) {
+  if (!val || !val.trim()) return 'Category name is required.';
+  if (!RE_CATEGORY.test(val.trim())) return 'Only letters, spaces, and hyphens allowed.';
+  if (val.length > 30) return 'Category name must be 30 characters or fewer.';
+  return null;
+}
+function validateBudget(val) {
+  if (!val || !val.trim()) return 'Please enter a budget amount.';
+  if (!RE_POSITIVE_INT.test(val.trim())) return 'Enter a valid positive number.';
+  return null;
+}
+function validateRate(val) {
+  if (!val || !val.trim()) return 'Required.';
+  if (!RE_POSITIVE_INT.test(val.trim())) return 'Enter a valid positive rate.';
+  return null;
+}
+
+/* search - mirrored from scripts/search.js */
+function compileRegex(input, caseInsensitive) {
+  if (caseInsensitive === undefined) caseInsensitive = true;
+  if (!input || !input.trim()) return null;
+  try {
+    return new RegExp(input.trim(), caseInsensitive ? 'i' : '');
+  } catch(e) {
+    return null;
+  }
+}
+function isValidRegex(input) {
+  try { new RegExp(input); return true; } catch(e) { return false; }
+}
+function highlight(text, re) {
+  var str = String(text);
+  if (!re) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  try {
+    var flags = re.flags.indexOf('g') >= 0 ? re.flags : re.flags + 'g';
+    var globalRe = new RegExp(re.source, flags);
+    var result = '', last = 0;
+    str.replace(globalRe, function(m, offset) {
+      result += str.slice(last, offset).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      result += '<mark>' + m.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</mark>';
+      last = offset + m.length;
+    });
+    result += str.slice(last).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return result;
+  } catch(e) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+}
+
+/* import validation */
+var RE_IMPORT_DATE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+function validateImport(data) {
+  if (!Array.isArray(data)) return 'Root must be a JSON array.';
+  var required = ['id','description','amount','category','date'];
+  for (var i = 0; i < data.length; i++) {
+    var r = data[i];
+    if (typeof r !== 'object' || r === null) return 'Item ' + i + ' is not an object.';
+    for (var k = 0; k < required.length; k++) {
+      if (!(required[k] in r)) return 'Item ' + i + ' is missing field ' + required[k];
+    }
+    var amount = parseFloat(r.amount);
+    if (isNaN(amount)) return 'Item ' + i + ' has an invalid amount.';
+    if (amount <= 0) return 'Item ' + i + ' has an invalid amount (must be greater than 0).';
+    if (!RE_IMPORT_DATE.test(r.date)) return 'Item ' + i + ' has an invalid date (use YYYY-MM-DD).';
+  }
+  return null;
+}
+
+/* harness */
+var results = [];
+function assert(condition) { return { pass: !!condition, detail: '' }; }
+
+function runTests() {
+  results = [];
+  function expect(desc, fn) {
+    try {
+      var r = fn();
+      results.push({ description: desc, pass: r.pass, detail: r.detail, skipped: false });
+    } catch(e) {
+      results.push({ description: desc, pass: false, detail: 'Threw: ' + e.message, skipped: false });
+    }
+  }
+
+  /* GROUP 1: Description */
+  expect('Description: valid value passes', function() { return assert(validateDescription('Lunch at cafeteria') === null); });
+  expect('Description: empty string fails', function() { return assert(validateDescription('') !== null); });
+  expect('Description: leading space fails', function() { return assert(validateDescription(' Lunch') !== null); });
+  expect('Description: trailing space fails', function() { return assert(validateDescription('Lunch ') !== null); });
+  expect('Description: single character fails', function() { return assert(validateDescription('A') !== null); });
+  expect('Description: 121 chars fails', function() { return assert(validateDescription('A'.repeat(121)) !== null); });
+  expect('Description: duplicate word fails', function() { return assert(validateDescription('the the book') !== null); });
+  expect('Description: normal phrase passes', function() { return assert(validateDescription('the book') === null); });
+
+  /* GROUP 2: Amount */
+  expect('Amount: integer passes', function() { return assert(validateAmount('1500') === null); });
+  expect('Amount: 2 decimal places passes', function() { return assert(validateAmount('1500.50') === null); });
+  expect('Amount: 1 decimal place passes', function() { return assert(validateAmount('500.5') === null); });
+  expect('Amount: 3 decimal places fails', function() { return assert(validateAmount('1500.999') !== null); });
+  expect('Amount: zero fails', function() { return assert(validateAmount('0') !== null); });
+  expect('Amount: negative fails', function() { return assert(validateAmount('-100') !== null); });
+  expect('Amount: empty fails', function() { return assert(validateAmount('') !== null); });
+  expect('Amount: text fails', function() { return assert(validateAmount('abc') !== null); });
+  expect('Amount: leading zero fails', function() { return assert(validateAmount('01500') !== null); });
+
+  /* GROUP 3: Date */
+  expect('Date: valid YYYY-MM-DD passes', function() { return assert(validateDate('2025-09-29') === null); });
+  expect('Date: leap day passes', function() { return assert(validateDate('2024-02-29') === null); });
+  expect('Date: DD/MM/YYYY fails', function() { return assert(validateDate('29/09/2025') !== null); });
+  expect('Date: month 13 fails', function() { return assert(validateDate('2025-13-01') !== null); });
+  expect('Date: day 00 fails', function() { return assert(validateDate('2025-09-00') !== null); });
+  expect('Date: day 32 fails', function() { return assert(validateDate('2025-09-32') !== null); });
+  expect('Date: empty fails', function() { return assert(validateDate('') !== null); });
+  expect('Date: partial date fails', function() { return assert(validateDate('2025-09') !== null); });
+
+  /* GROUP 4: Category */
+  expect('Category: single word passes', function() { return assert(validateCategoryName('Food') === null); });
+  expect('Category: two words passes', function() { return assert(validateCategoryName('School Fees') === null); });
+  expect('Category: hyphenated passes', function() { return assert(validateCategoryName('Non-Academic') === null); });
+  expect('Category: digits fail', function() { return assert(validateCategoryName('Food2') !== null); });
+  expect('Category: special chars fail', function() { return assert(validateCategoryName('Food!') !== null); });
+  expect('Category: empty fails', function() { return assert(validateCategoryName('') !== null); });
+  expect('Category: empty select fails', function() { return assert(validateCategory('') !== null); });
+  expect('Category: valid select passes', function() { return assert(validateCategory('Food') === null); });
+
+  /* GROUP 5: Budget and Rate */
+  expect('Budget: valid integer passes', function() { return assert(validateBudget('100000') === null); });
+  expect('Budget: zero fails', function() { return assert(validateBudget('0') !== null); });
+  expect('Budget: 00 fails', function() { return assert(validateBudget('00') !== null); });
+  expect('Budget: decimal passes', function() { return assert(validateBudget('99.99') === null); });
+  expect('Budget: empty fails', function() { return assert(validateBudget('') !== null); });
+  expect('Budget: text fails', function() { return assert(validateBudget('abc') !== null); });
+  expect('Rate: valid integer passes', function() { return assert(validateRate('1320') === null); });
+  expect('Rate: decimal passes', function() { return assert(validateRate('1320.50') === null); });
+  expect('Rate: zero fails', function() { return assert(validateRate('0') !== null); });
+  expect('Rate: empty fails', function() { return assert(validateRate('') !== null); });
+  expect('Rate: negative fails', function() { return assert(validateRate('-100') !== null); });
+
+  /* GROUP 6: compileRegex */
+  expect('compileRegex: valid pattern returns RegExp', function() { return assert(compileRegex('coffee|tea') instanceof RegExp); });
+  expect('compileRegex: empty returns null', function() { return assert(compileRegex('') === null); });
+  expect('compileRegex: invalid returns null', function() { return assert(compileRegex('[invalid') === null); });
+  expect('compileRegex: case-insensitive by default', function() { return assert(compileRegex('food').flags.indexOf('i') >= 0); });
+  expect('compileRegex: case-sensitive when toggled', function() { return assert(compileRegex('food', false).flags.indexOf('i') < 0); });
+
+  /* GROUP 7: isValidRegex */
+  expect('isValidRegex: valid pattern true', function() { return assert(isValidRegex('\\d{4}') === true); });
+  expect('isValidRegex: invalid pattern false', function() { return assert(isValidRegex('[broken') === false); });
+  expect('isValidRegex: back-reference valid', function() { return assert(isValidRegex('\\b(\\w+)\\s+\\1\\b') === true); });
+
+  /* GROUP 8: highlight */
+  expect('highlight: wraps match in mark', function() {
+    return assert(highlight('Coffee with friends', compileRegex('coffee')).indexOf('<mark>') >= 0);
+  });
+  expect('highlight: no regex escapes HTML', function() {
+    var out = highlight('Lunch <test>', null);
+    return assert(out.indexOf('&lt;') >= 0 && out.indexOf('<mark>') < 0);
+  });
+  expect('highlight: XSS input escaped', function() {
+    var out = highlight('<b>bold</b>', compileRegex('bold'));
+    return assert(out.indexOf('<b>') < 0);
+  });
+  expect('highlight: multiple matches wrapped', function() {
+    var out = highlight('the cat and the dog', compileRegex('the'));
+    var count = out.split('<mark>').length - 1;
+    return assert(count === 2);
+  });
+
+  /* GROUP 9: validateImport */
+  expect('validateImport: valid array passes', function() {
+    return assert(validateImport([{id:'r1',description:'Lunch',amount:1500,category:'Food',date:'2025-09-01'}]) === null);
+  });
+  expect('validateImport: non-array fails', function() { return assert(validateImport({}) !== null); });
+  expect('validateImport: missing id fails', function() {
+    return assert(validateImport([{description:'Lunch',amount:1500,category:'Food',date:'2025-09-01'}]) !== null);
+  });
+  expect('validateImport: missing amount fails', function() {
+    return assert(validateImport([{id:'r1',description:'Lunch',category:'Food',date:'2025-09-01'}]) !== null);
+  });
+  expect('validateImport: non-numeric amount fails', function() {
+    return assert(validateImport([{id:'r1',description:'Lunch',amount:'abc',category:'Food',date:'2025-09-01'}]) !== null);
+  });
+  expect('validateImport: empty array passes', function() { return assert(validateImport([]) === null); });
+  expect('validateImport: negative amount fails', function() {
+    return assert(validateImport([{id:'r1',description:'Lunch',amount:-5,category:'Food',date:'2025-09-01'}]) !== null);
+  });
+  expect('validateImport: invalid date format fails', function() {
+    return assert(validateImport([{id:'r1',description:'Lunch',amount:1500,category:'Food',date:'29/09/2025'}]) !== null);
+  });
+
+  /* GROUP 10: Advanced regex */
+  expect('Advanced: back-reference catches duplicate word', function() {
+    return assert(/\b(\w+)\s+\1\b/i.test('the the book'));
+  });
+  expect('Advanced: back-reference ignores non-duplicate', function() {
+    return assert(!/\b(\w+)\s+\1\b/i.test('the book'));
+  });
+  expect('Advanced: lookahead rejects all-zero budget', function() {
+    return assert(!/^(?!0+$)\d+(\.\d{1,2})?$/.test('000'));
+  });
+  expect('Advanced: lookahead accepts valid budget', function() {
+    return assert(/^(?!0+$)\d+(\.\d{1,2})?$/.test('50000'));
+  });
+  expect('Advanced: beverage pattern matches coffee', function() {
+    return assert(/(coffee|tea)/i.test('Coffee with friends'));
+  });
+  expect('Advanced: cents pattern matches decimal', function() {
+    return assert(/\.\d{2}\b/.test('1500.50'));
+  });
+  expect('Advanced: cents pattern ignores integer', function() {
+    return assert(!/\.\d{2}\b/.test('1500'));
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function render() {
+  var output = document.getElementById('output');
+  output.innerHTML = '';
+  var pass  = 0, fail = 0, skip = 0;
+  for (var i = 0; i < results.length; i++) {
+    if (results[i].skipped) skip++;
+    else if (results[i].pass) pass++;
+    else fail++;
+  }
+  var total = results.length;
+  document.getElementById('sum-total').textContent = total;
+  document.getElementById('sum-pass').textContent  = pass;
+  document.getElementById('sum-fail').textContent  = fail;
+  document.getElementById('sum-skip').textContent  = skip;
+  document.getElementById('progress-bar').style.width = total > 0 ? Math.round((pass/total)*100) + '%' : '0%';
+  document.getElementById('progress-bar').style.background = fail > 0 ? 'linear-gradient(90deg,#22c55e,#f59e0b)' : '#22c55e';
+
+  var groups = {};
+  for (var j = 0; j < results.length; j++) {
+    var g = results[j].description.split(':')[0].trim();
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(results[j]);
+  }
+
+  var groupKeys = Object.keys(groups);
+  for (var gi = 0; gi < groupKeys.length; gi++) {
+    var group = groupKeys[gi];
+    var tests = groups[group];
+    var gPass = 0;
+    for (var ti = 0; ti < tests.length; ti++) { if (tests[ti].pass) gPass++; }
+    var h2 = document.createElement('h2');
+    h2.textContent = group + ' (' + gPass + '/' + tests.length + ')';
+    output.appendChild(h2);
+    for (var ti2 = 0; ti2 < tests.length; ti2++) {
+      var t = tests[ti2];
+      var cls        = t.skipped ? 'skip' : t.pass ? 'pass' : 'fail';
+      var badgeClass = t.skipped ? 'badge-skip' : t.pass ? 'badge-pass' : 'badge-fail';
+      var badgeText  = t.skipped ? 'SKIP' : t.pass ? 'PASS' : 'FAIL';
+      var label      = t.description.split(':').slice(1).join(':').trim();
+      var row = document.createElement('div');
+      row.className = 'test-row ' + cls;
+      row.innerHTML = '<span class="icon"></span>' +
+        '<span class="test-name">' + esc(label) + '</span>' +
+        '<span class="badge ' + badgeClass + '">' + badgeText + '</span>' +
+        (t.detail ? '<span class="test-detail">' + esc(t.detail) + '</span>' : '');
+      output.appendChild(row);
+    }
+  }
+}
+
+document.getElementById('run-btn').addEventListener('click', function() {
+  document.getElementById('progress-bar').style.width = '0%';
+  runTests();
+  render();
+});
+
+runTests();
+render();
+</script>
+</body>
+</html>
