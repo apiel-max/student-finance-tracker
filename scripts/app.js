@@ -396,7 +396,7 @@ document.getElementById('clear-btn').addEventListener('click', () => {
 /* ════════════════════════════════════════════════
    ALT+1…7 — jump to sections
 ════════════════════════════════════════════════ */
-const sectionKeys = ['about','dashboard','add-transaction','regex-search','records','budget-target','settings'];
+const sectionKeys = ['about','dashboard','add-transaction','records','budget-target','settings'];
 document.addEventListener('keydown', e => {
   if (!e.altKey) return;
   const idx = parseInt(e.key, 10) - 1;
