@@ -170,7 +170,7 @@
           <div class="field-group">
             <label for="f-description">Description <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="f-description" name="description" autocomplete="off"
-              aria-required="true" aria-describedby="err-description" placeholder="e.g. Lunch at cafeteria" />
+              aria-required="true" aria-describedby="err-description" placeholder="e.g. Lunch" />
             <span class="field-error" id="err-description" role="alert" aria-live="assertive"></span>
           </div>
 
@@ -383,12 +383,10 @@
         <!-- Data Management -->
         <div class="settings-block">
           <h3>Data Management</h3>
+          <input type="file" id="import-input" accept=".json" class="sr-only" aria-label="Import JSON file" />
           <div class="data-btns">
             <button class="btn btn--primary" id="export-btn">Export JSON</button>
-            <label class="btn btn--ghost" id="import-label">
-              Import JSON
-              <input type="file" id="import-input" accept=".json" class="sr-only" aria-label="Import JSON file" />
-            </label>
+            <label class="btn btn--ghost" id="import-label" for="import-input">Import JSON</label>
             <button class="btn btn--danger" id="clear-btn">Clear All Data</button>
           </div>
           <div id="data-status" role="status" aria-live="polite" class="settings-status"></div>
