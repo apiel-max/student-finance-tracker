@@ -31,7 +31,6 @@
           <li><a href="#about">About</a></li>
           <li><a href="#dashboard">Dashboard</a></li>
           <li><a href="#add-transaction">Add Transaction</a></li>
-          <li><a href="#regex-search">Search</a></li>
           <li><a href="#records">Records</a></li>
           <li><a href="#budget-target">Budget</a></li>
           <li><a href="#settings">Settings</a></li>
@@ -212,15 +211,15 @@
       </div>
     </section>
 
-    <!-- ── REGEX SEARCH ── -->
-    <section id="regex-search" class="section section--alt" aria-labelledby="search-heading" tabindex="-1">
+    <!-- ── TRANSACTION RECORDS ── -->
+    <section id="records" class="section" aria-labelledby="records-heading" tabindex="-1">
       <div class="section-inner">
-        <h2 id="search-heading" class="section-title">Regex Search</h2>
-        <p class="search-intro">Type any regular expression to filter transactions. Matches are highlighted in the Records table below.</p>
+        <h2 id="records-heading" class="section-title">Transaction Records</h2>
 
+        <!-- Search integrated into records -->
         <div class="search-bar">
           <div class="field-group search-field">
-            <label for="search-input">Search pattern</label>
+            <label for="search-input">Search transactions</label>
             <input type="text" id="search-input" placeholder="e.g. coffee|tea" autocomplete="off"
               aria-describedby="search-status search-error" />
             <span class="field-error" id="search-error" role="alert" aria-live="assertive"></span>
@@ -244,13 +243,6 @@
             <li><code>(?i)transport</code> — case-insensitive keyword</li>
           </ul>
         </div>
-      </div>
-    </section>
-
-    <!-- ── TRANSACTION RECORDS ── -->
-    <section id="records" class="section" aria-labelledby="records-heading" tabindex="-1">
-      <div class="section-inner">
-        <h2 id="records-heading" class="section-title">Transaction Records</h2>
 
         <div class="table-toolbar">
           <span id="records-count" class="records-count" aria-live="polite"></span>
