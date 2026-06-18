@@ -181,12 +181,13 @@ code {
   transition: transform var(--transition), box-shadow var(--transition);
 }
 .how-step:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.how-icon { font-size: 1.5rem; line-height: 1; }
+.how-icon { width: 1.75rem; height: 1.75rem; color: var(--clr-accent2); flex-shrink: 0; }
 .how-label { font-size: 0.82rem; font-weight: 600; color: var(--clr-text); }
 .how-arrow {
-  font-size: 1.25rem; color: var(--clr-accent);
-  font-weight: 700; line-height: 1; flex-shrink: 0;
+  color: var(--clr-accent); flex-shrink: 0;
+  display: flex; align-items: center;
 }
+.how-arrow svg { width: 1.25rem; height: 1.25rem; }
 
 /* Why Use This App — benefit cards */
 .benefit-grid {
@@ -205,7 +206,7 @@ code {
   transition: transform var(--transition), box-shadow var(--transition);
 }
 .benefit-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.benefit-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 0.1rem; }
+.benefit-icon { width: 1.75rem; height: 1.75rem; color: var(--clr-accent); margin-bottom: 0.25rem; flex-shrink: 0; }
 .benefit-title { font-size: 0.95rem; color: var(--clr-white); font-family: var(--font-display); }
 .benefit-desc { font-size: 0.85rem; color: var(--clr-muted); line-height: 1.5; margin: 0; }
 
