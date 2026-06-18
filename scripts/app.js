@@ -19,6 +19,7 @@ renderDashboard();
 renderRecords();
 renderCategories();
 document.getElementById('footer-year').textContent = new Date().getFullYear();
+if (typeof lucide !== 'undefined') lucide.createIcons();
 
 /* ════════════════════════════════════════════════
    NAV — mobile hamburger
