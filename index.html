@@ -233,17 +233,6 @@
 
         <div id="search-status" role="status" aria-live="polite" class="search-status"></div>
 
-        <div class="regex-examples">
-          <h3>Example patterns</h3>
-          <ul>
-            <li><code>coffee|tea</code> — matches descriptions containing "coffee" or "tea"</li>
-            <li><code>^Food</code> — categories starting with "Food"</li>
-            <li><code>\b(\w+)\s+\1\b</code> — catches duplicate words</li>
-            <li><code>\.\d{2}\b</code> — amounts with cents</li>
-            <li><code>(?i)transport</code> — case-insensitive keyword</li>
-          </ul>
-        </div>
-
         <div class="table-toolbar">
           <span id="records-count" class="records-count" aria-live="polite"></span>
           <div class="sort-controls" role="group" aria-label="Sort transactions">
@@ -331,6 +320,17 @@
         <!-- Currency -->
         <div class="settings-block">
           <h3>Currency</h3>
+
+          <!-- Display currency switcher -->
+          <div class="display-currency">
+            <label class="display-currency-label">Display Currency</label>
+            <div class="currency-toggle" role="group" aria-label="Select display currency">
+              <button class="btn btn--ghost currency-btn active" data-cur="rwf">RWF</button>
+              <button class="btn btn--ghost currency-btn" data-cur="usd">USD</button>
+              <button class="btn btn--ghost currency-btn" data-cur="eur">EUR</button>
+            </div>
+          </div>
+
           <p class="settings-note">Base currency is RWF. Set manual conversion rates below.</p>
           <div class="field-row">
             <div class="field-group">

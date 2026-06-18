@@ -4,7 +4,21 @@
 import { state, getFilteredRecords, getStats } from './state.js';
 import { highlight } from './search.js';
 
-const fmt = n => `RWF ${Number(n).toLocaleString('en-RW', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function fmt(n) {
+  const cur = state.displayCurrency || 'rwf';
+  let amount = Number(n);
+  let symbol, locale;
+  if (cur === 'usd' && state.rates.usd > 0) {
+    amount = amount / state.rates.usd;
+    symbol = 'USD'; locale = 'en-US';
+  } else if (cur === 'eur' && state.rates.eur > 0) {
+    amount = amount / state.rates.eur;
+    symbol = 'EUR'; locale = 'de-DE';
+  } else {
+    symbol = 'RWF'; locale = 'en-RW';
+  }
+  return `${symbol} ${amount.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
 
 function escapeHtml(str) {
   return String(str)

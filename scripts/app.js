@@ -279,6 +279,26 @@ document.getElementById('budget-save').addEventListener('click', () => {
 });
 
 /* ════════════════════════════════════════════════
+   SETTINGS — Display currency switcher
+════════════════════════════════════════════════ */
+function syncCurrencyBtns() {
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.cur === state.displayCurrency)
+  );
+}
+syncCurrencyBtns();
+
+document.querySelector('.currency-toggle').addEventListener('click', e => {
+  const btn = e.target.closest('.currency-btn');
+  if (!btn) return;
+  state.displayCurrency = btn.dataset.cur;
+  localStorage.setItem('sft:display-currency', state.displayCurrency);
+  syncCurrencyBtns();
+  renderDashboard();
+  renderRecords();
+});
+
+/* ════════════════════════════════════════════════
    SETTINGS — Currency rates
 ════════════════════════════════════════════════ */
 // Pre-fill rate inputs from state

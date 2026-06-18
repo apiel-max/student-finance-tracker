@@ -9,21 +9,23 @@ import {
 } from './storage.js';
 
 export const state = {
-  records:    [],
-  budget:     0,
-  categories: [],
-  rates:      { usd: 1320, eur: 1430 },
-  sortField:  'date',
-  sortAsc:    false,
-  searchRe:   null,
+  records:         [],
+  budget:          0,
+  categories:      [],
+  rates:           { usd: 1320, eur: 1430 },
+  displayCurrency: 'rwf',
+  sortField:       'date',
+  sortAsc:         false,
+  searchRe:        null,
 };
 
 /* ── Bootstrap ── */
 export function initState() {
-  state.records    = loadRecords();
-  state.budget     = loadBudget();
-  state.categories = loadCategories();
-  state.rates      = loadRates();
+  state.records         = loadRecords();
+  state.budget          = loadBudget();
+  state.categories      = loadCategories();
+  state.rates           = loadRates();
+  state.displayCurrency = localStorage.getItem('sft:display-currency') || 'rwf';
 }
 
 /* ── Records ── */
