@@ -3,8 +3,8 @@
 An accessible, responsive, vanilla HTML/CSS/JS web app that helps students record expenses, monitor budgets, and make informed financial decisions — all in the browser with no backend required.
 
 **Theme:** Student Finance Tracker
-**Live Demo:** https://apiel-max.github.io/student-finance-tracker
-**Demo Video:**
+**Live site:** https://apiel-max.github.io/student-finance-tracker
+**Demo Video:** https://drive.google.com/file/d/1wWFJ5j3NW6oa2vbiwo4FedCrPnexZfcb/view?usp=sharing
 **Developer:** Alier Piel — a.piel@alustudent.com — [github.com/apiel-max](https://github.com/apiel-max)
 
 ---
